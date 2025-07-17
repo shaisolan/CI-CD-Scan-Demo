@@ -1,4 +1,4 @@
-# This is my CI/CD pipeline
+# This is my CI/CD pipeline example
 name: CI/CD Pipeline
 
 on:
