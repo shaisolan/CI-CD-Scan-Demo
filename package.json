@@ -1,0 +1,23 @@
+{
+  "name": "ci-cd-scan-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+ "scripts": {
+    "test": "jest"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shaisolan/CI-CD-Scan-Demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shaisolan/CI-CD-Scan-Demo/issues"
+  },
+  "homepage": "https://github.com/shaisolan/CI-CD-Scan-Demo#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
