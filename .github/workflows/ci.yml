@@ -1,12 +1,10 @@
 # This is my CI/CD pipeline with Wiz CLI IaC scanning
 name: CI/CD Pipeline
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 jobs:
   test:
     name: "Run Tests"
@@ -25,33 +23,26 @@ jobs:
       
     - name: Run tests
       run: npm test
-
   wiz-cli-iac-scan:
     name: "Wiz CLI IaC Security Scan"
     runs-on: ubuntu-latest
     env:
-      SCAN_PATH: . # Scans the entire repository root where main.tf is located
       POLICY: "Default IaC policy" # Set the desired Wiz CLI policy to use
-
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
-
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Check out repository
       uses: actions/checkout@v3
-
     - name: Download Wiz CLI
       run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
-
     - name: Authenticate to Wiz
       run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
       env:
         WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
         WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
-
     - name: List Terraform files (for debugging)
       run: |
         echo "Looking for Terraform files in repository root:"
@@ -59,6 +50,5 @@ jobs:
         echo ""
         echo "Repository structure:"
         ls -la
-
     - name: Run Wiz CLI IaC scan
-      run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" 
+      run: ./wizcli iac scan --path . --policy "$POLICY"
