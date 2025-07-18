@@ -30,7 +30,7 @@ jobs:
     name: "Wiz CLI IaC Security Scan"
     runs-on: ubuntu-latest
     env:
-      SCAN_PATH: "." # Set the relative path in the repo to scan
+      SCAN_PATH: "." # Scans the entire repository root where main.tf is located
       POLICY: "Default IaC policy" # Set the desired Wiz CLI policy to use
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -54,3 +54,8 @@ jobs:
 
     - name: Run Wiz CLI IaC scan
       run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY"
+      
+    - name: List files being scanned (for debugging)
+      run: |
+        echo "Files in scan path:"
+        find $SCAN_PATH -name "*.tf" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" | head -20
