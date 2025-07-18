@@ -1,4 +1,4 @@
-# This is my CI/CD pipeline with Wiz CLI IaC scanning update
+# This is my CI/CD pipeline with Wiz CLI IaC scanning
 name: CI/CD Pipeline
 
 on:
@@ -52,9 +52,6 @@ jobs:
         WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
         WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
-    - name: Run Wiz CLI IaC scan
-      run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" --exclude "**/node_modules/**"
-      
     - name: List Terraform files (for debugging)
       run: |
         echo "Looking for Terraform files in repository root:"
@@ -62,3 +59,6 @@ jobs:
         echo ""
         echo "Repository structure:"
         ls -la
+
+    - name: Run Wiz CLI IaC scan
+      run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" --exclude "**/node_modules/**"
