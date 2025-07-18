@@ -1,4 +1,4 @@
-# This is an intentionally insecure S3 bucket configuration for testing Wiz CLI scanning
+# This is an intentionally insecure S3 bucket configuration for testing Wiz CLI scanning test
 # WARNING: This configuration has multiple security vulnerabilities and should NEVER be used in production
 
 terraform {
