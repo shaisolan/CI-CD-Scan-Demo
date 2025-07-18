@@ -1,0 +1,129 @@
+# This is an intentionally insecure S3 bucket configuration for testing Wiz CLI scanning
+# WARNING: This configuration has multiple security vulnerabilities and should NEVER be used in production
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Intentionally insecure S3 bucket with public access
+resource "aws_s3_bucket" "insecure_test_bucket" {
+  bucket = "my-insecure-test-bucket-${random_string.bucket_suffix.result}"
+  
+  tags = {
+    Name        = "InsecureTestBucket"
+    Environment = "test"
+    Purpose     = "wiz-cli-security-testing"
+  }
+}
+
+# Random string to make bucket name unique
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
+# Disable block public access (makes bucket vulnerable)
+resource "aws_s3_bucket_public_access_block" "insecure_bucket_pab" {
+  bucket = aws_s3_bucket.insecure_test_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# Set bucket ACL to public-read-write (very insecure)
+resource "aws_s3_bucket_acl" "insecure_bucket_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
+  
+  bucket = aws_s3_bucket.insecure_test_bucket.id
+  acl    = "public-read-write"
+}
+
+# Bucket ownership controls
+resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
+  bucket = aws_s3_bucket.insecure_test_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# Public read policy (allows anyone to read all objects)
+resource "aws_s3_bucket_policy" "insecure_bucket_policy" {
+  bucket = aws_s3_bucket.insecure_test_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.insecure_test_bucket.arn,
+          "${aws_s3_bucket.insecure_test_bucket.arn}/*"
+        ]
+      },
+      {
+        Sid       = "PublicWriteGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = [
+          "s3:PutObject",
+          "s3:PutObjectAcl",
+          "s3:DeleteObject"
+        ]
+        Resource = "${aws_s3_bucket.insecure_test_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
+# Disable server-side encryption (another security issue)
+resource "aws_s3_bucket_server_side_encryption_configuration" "insecure_bucket_encryption" {
+  bucket = aws_s3_bucket.insecure_test_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# Disable versioning (potential data loss risk)
+resource "aws_s3_bucket_versioning" "insecure_bucket_versioning" {
+  bucket = aws_s3_bucket.insecure_test_bucket.id
+  
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+# No logging configuration (compliance issue)
+# Intentionally omitting aws_s3_bucket_logging
+
+# Output the bucket name for reference
+output "insecure_bucket_name" {
+  value = aws_s3_bucket.insecure_test_bucket.id
+  description = "Name of the intentionally insecure S3 bucket"
+}
+
+output "bucket_warning" {
+  value = "WARNING: This bucket is intentionally configured with multiple security vulnerabilities for testing purposes only!"
+}
