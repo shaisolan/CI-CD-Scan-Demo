@@ -61,4 +61,4 @@ jobs:
         ls -la
 
     - name: Run Wiz CLI IaC scan
-      run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" --exclude "**/node_modules/**"
+      run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" 
